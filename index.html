@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>冰冰冰音乐工作室 · Bing Bing Bing Studio</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="snow" id="snow" aria-hidden="true"></div>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">冰</div>
+    <div class="brand-text">
+      <h1>冰冰冰音乐工作室</h1>
+      <p class="sub">Bing Bing Bing Studio · 弹奏器 / 制作器</p>
+    </div>
+  </div>
+  <nav class="tabs">
+    <button class="tab active" data-tab="play">弹奏器</button>
+    <button class="tab" data-tab="make">制作器</button>
+  </nav>
+</header>
+
+<main>
+  <!-- ============ 弹奏器 ============ -->
+  <section id="panel-play" class="panel active">
+    <div class="card">
+      <div class="card-head">
+        <h2>冰键</h2>
+        <span class="hint">电脑键盘：高音区 Q W E R T Y U I ／ 低音区 Z X C V B N M ,</span>
+      </div>
+      <div class="keys" id="keys"></div>
+      <div class="row">
+        <button id="btn-record" class="btn rec">开始录制</button>
+        <span class="status" id="rec-status">未录制</span>
+        <button id="btn-quantize" class="btn ghost" disabled>量化到制作器网格</button>
+        <button id="btn-demo" class="btn ghost">试听一次“冰”</button>
+        <label class="inline-check"><input type="checkbox" id="chk-keyhold" checked> 长按持续震冰</label>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>怎么玩</h2></div>
+      <ul class="tips">
+        <li>点击冰砖或按键盘即可发声，冰砖会碎裂发光。</li>
+        <li>「开始录制」后再弹奏，停止后点「量化到制作器网格」，你弹的节奏会自动对齐到 16 分音符并排进网格。</li>
+        <li>想用真实的冰冰冰素材？到「制作器 → 音源」把 <code>冰冰冰.wav</code> 拖进去，整套琴就换成那个音了。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ 制作器 ============ -->
+  <section id="panel-make" class="panel">
+    <div class="card">
+      <div class="card-head">
+        <h2>传输</h2>
+        <span class="status" id="transport-status">已停止</span>
+      </div>
+      <div class="row wrap">
+        <button id="btn-play" class="btn primary">播放</button>
+        <button id="btn-stop" class="btn">停止</button>
+        <label class="ctrl">速度 <input type="range" id="bpm" min="50" max="200" step="1" value="120"><b id="bpm-val">120</b></label>
+        <label class="ctrl">步数
+          <select id="steps">
+            <option value="8">8</option>
+            <option value="16" selected>16</option>
+            <option value="32">32</option>
+            <option value="64">64</option>
+            <option value="128">128</option>
+            <option value="256">256</option>
+          </select>
+        </label>
+        <label class="ctrl">摇摆 <input type="range" id="swing" min="0" max="1" step="0.05" value="0"><b id="swing-val">0%</b></label>
+        <label class="inline-check"><input type="checkbox" id="chk-metro"> 节拍器</label>
+        <label class="inline-check"><input type="checkbox" id="chk-loop" checked> 循环</label>
+      </div>
+      <p class="hint">网格一列 = 十六分音符（1/16），每 4 格为一拍。点格子开/关，按住拖动可以连续涂抹。</p>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <h2>导入音乐 · 自动编曲</h2>
+        <span class="status" id="arrange-status">未导入音乐</span>
+      </div>
+      <div class="dropzone" id="music-drop">
+        <p><b>把任意歌曲 / 音频拖到这里</b>（.mp3 .m4a .wav .flac …）</p>
+        <p class="hint">或 <label class="file-link">选择文件<input type="file" id="file-music" accept="audio/*" hidden></label> · 全部在本地分析，不会上传</p>
+        <p class="hint" id="music-info">尚未导入音乐</p>
+      </div>
+      <div class="row wrap">
+        <label class="ctrl">起点 <input type="number" id="arr-start" value="0" min="0" step="0.5"> s</label>
+        <label class="ctrl">长度 <input type="number" id="arr-len" value="8" min="2" max="60" step="1"> s</label>
+        <label class="ctrl">音高
+          <select id="arr-pitch">
+            <option value="melody" selected>旋律（扒谱，推荐）</option>
+            <option value="tone">单调（纯节奏，全部一个音）</option>
+          </select>
+        </label>
+        <label class="ctrl">音阶
+          <select id="arr-scale">
+            <option value="major" selected>大调</option>
+            <option value="minor">小调</option>
+            <option value="pentatonic">五声</option>
+            <option value="chromatic">不吸附</option>
+          </select>
+        </label>
+        <label class="ctrl">灵敏度 <input type="range" id="arr-sens" min="0.6" max="3" step="0.1" value="1.3"><b id="arr-sens-val">1.3</b></label>
+      </div>
+      <div class="row wrap">
+        <label class="ctrl">速度
+          <select id="arr-tempo">
+            <option value="auto" selected>自动检测</option>
+            <option value="half">自动 ÷2（半速）</option>
+            <option value="double">自动 ×2（双速）</option>
+            <option value="manual">手动指定</option>
+          </select>
+        </label>
+        <label class="ctrl" id="arr-bpm-wrap" hidden>BPM <input type="number" id="arr-bpm" value="120" min="30" max="300" step="1"></label>
+        <label class="ctrl">节奏密度
+          <select id="arr-grid">
+            <option value="1" selected>全部（1/16）</option>
+            <option value="2">只保留 1/8</option>
+            <option value="4">只保留 1/4</option>
+          </select>
+        </label>
+        <label class="inline-check"><input type="checkbox" id="chk-autoplay" checked> 生成后自动播放</label>
+      </div>
+      <div class="row wrap">
+        <button class="btn primary" id="btn-arrange" disabled>自动编曲</button>
+        <button class="btn" id="btn-demo-song">用示例曲试一次</button>
+        <button class="btn ghost" id="btn-audition" disabled>试听原曲片段</button>
+        <button class="btn ghost" id="btn-audition-stop" disabled>停止试听</button>
+      </div>
+      <p class="hint" id="arrange-detail">
+        三步：① 拖入歌曲 → ② 选好截取起点/长度 → ③ 点「自动编曲」。
+        「音高」选 **旋律（扒谱）** 才会去提音高、把谱子扒出来；「单调」是把每个节奏点都打在同一个音上，
+        只扒节奏、不扒音高（原梗那种“冰冰冰”就是这个味道）。
+        灵敏度越大越严格（漏掉弱音），越小越容易把杂音也当成节奏；「节奏密度」可以只保留 1/8 或 1/4 的起音，结果更清爽。
+        没有歌可以点「用示例曲试一次」，程序会现场合成一段 100 BPM 的小曲、按「旋律」模式扒一遍给你看。
+      </p>
+      <p class="score-line" id="arrange-score"></p>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <h2>网格</h2>
+        <div class="row tight">
+          <button class="btn ghost small" data-preset="0">经典冰冰冰</button>
+          <button class="btn ghost small" data-preset="1">Bang 副歌感</button>
+          <button class="btn ghost small" data-preset="2">冰原回响</button>
+          <button class="btn ghost small" id="btn-random">随机冰雹</button>
+          <button class="btn ghost small" id="btn-clear">全部清空</button>
+          <label class="inline-check"><input type="checkbox" id="chk-onlyused"> 只显示有音符的行</label>
+        </div>
+      </div>
+      <div class="row wrap">
+        <label class="ctrl">画笔时值
+          <select id="brush-len">
+            <option value="1" selected>1 格</option>
+            <option value="2">2 格</option>
+            <option value="4">4 格（一拍）</option>
+            <option value="8">8 格（两拍）</option>
+            <option value="16">16 格（一小节）</option>
+          </select>
+        </label>
+        <label class="ctrl">画笔力度 <input type="range" id="brush-vel" min="0.2" max="1.3" step="0.05" value="0.85"><b id="brush-vel-val">0.85</b></label>
+      </div>
+      <p class="hint">
+        钢琴卷帘：一行一个音高（C4 ~ C6），点格子开/关、按住拖动连续涂抹、点音名试听那一行。<br>
+        每个音符都带<b>时值</b>和<b>力度</b>（相当于 MIDI 的 note on/off + velocity）：
+        浅色尾格是时值延音；<b>Shift+点</b>把音拉长一格、<b>Alt+点 或 右键</b>缩短一格；
+        力度大的格子更亮、力度小的更暗。时值长的音会真的响更久（两拍以上的音中途会自动补轻击）。
+      </p>
+      <div class="grid-scroll">
+        <div class="grid" id="grid"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>音源</h2><span class="status" id="source-status">当前：合成冰音</span></div>
+      <div class="row wrap">
+        <button class="btn source-btn active" id="btn-src-synth">合成冰音</button>
+        <button class="btn source-btn" id="btn-src-sample">采样音源</button>
+      </div>
+      <div class="dropzone" id="dropzone">
+        <p><b>把 冰冰冰.m4a / .wav / .mp3 拖到这里</b></p>
+        <p class="hint">或者 <label class="file-link">选择文件<input type="file" id="file-sample" accept="audio/*" hidden></label>（音源只在你本地解码使用，不会上传）</p>
+        <p class="hint" id="sample-info">尚未载入采样</p>
+        <p class="hint">想让工作室内置这段素材、双击就能用？执行 <code>py tools/embed-sample.py "音频路径"</code></p>
+      </div>
+      <div class="row wrap">
+        <label class="ctrl">触发方式
+          <select id="sample-mode">
+            <option value="single" selected>单个“冰”（第一段）</option>
+            <option value="whole">整段“冰冰冰”</option>
+          </select>
+        </label>
+        <label class="ctrl">采样根音
+          <select id="sample-root"><option value="60">C4</option></select>
+        </label>
+        <label class="ctrl">音高感 <input type="range" id="sample-body" min="0" max="1.2" step="0.05" value="0.35"><b id="sample-body-val">0.35</b></label>
+        <button class="btn ghost small" id="btn-sample-raw">试听原素材</button>
+        <button class="btn ghost small" id="btn-sample-clear">清除采样</button>
+      </div>
+      <p class="hint">「音高感」= 在素材上叠一层按音符频率衰减的正弦体。原素材每个“冰”只有一百多毫秒，
+      纯靠它听不出音高，旋律会变成一串“哒哒哒”；调到 0 就是纯素材原味，调到 0.6 以上旋律最清楚。</p>
+      <p class="hint">载入时会自动裁掉素材前后的静音，并按能量切出每个“冰”字的位置；「单个冰」只发第一段（琴键手感更跟手），「整段冰冰冰」则一次把三个字打出来。</p>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>音色</h2></div>
+      <div class="row wrap">
+        <label class="ctrl">亮度 <input type="range" id="tone-bright" min="0.3" max="1.8" step="0.05" value="1"><b id="tone-bright-val">1.00</b></label>
+        <label class="ctrl">长度 <input type="range" id="tone-decay" min="0.4" max="2.2" step="0.05" value="1"><b id="tone-decay-val">1.00</b></label>
+        <label class="ctrl">力度 <input type="range" id="tone-gain" min="0" max="1.5" step="0.05" value="1"><b id="tone-gain-val">1.00</b></label>
+        <label class="ctrl">音高 <input type="range" id="tone-pitch" min="-12" max="12" step="1" value="0"><b id="tone-pitch-val">0</b></label>
+        <label class="ctrl">混响大小 <input type="range" id="rev-size" min="0.4" max="4" step="0.1" value="1.6"><b id="rev-size-val">1.6</b></label>
+        <label class="ctrl">混响量 <input type="range" id="rev-mix" min="0" max="0.6" step="0.02" value="0.18"><b id="rev-mix-val">0.18</b></label>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>保存与导出</h2></div>
+      <div class="row wrap">
+        <label class="ctrl">槽位
+          <select id="slot">
+            <option value="1">槽位 1</option>
+            <option value="2">槽位 2</option>
+            <option value="3">槽位 3</option>
+          </select>
+        </label>
+        <button class="btn" id="btn-save">保存到浏览器</button>
+        <button class="btn" id="btn-load">读取</button>
+        <button class="btn primary" id="btn-export-wav">导出 WAV</button>
+        <button class="btn" id="btn-export-midi">导出 MIDI</button>
+        <button class="btn ghost" id="btn-export-json">导出 JSON</button>
+        <label class="btn ghost file-link">导入 JSON<input type="file" id="file-json" accept=".json,application/json" hidden></label>
+      </div>
+      <p class="hint">
+        导出的 WAV 为 44.1kHz / 16bit 立体声，直接可用于视频剪辑。
+        <b>导出的 MIDI 是标准 SMF 格式</b>（含 tempo、时值、力度），可以直接拖进 DAW / MuseScore。
+      </p>
+
+      <div class="row wrap" style="margin-top:14px">
+        <label class="btn file-link">选择 MIDI 文件<input type="file" id="file-midi" accept=".mid,.midi,audio/midi,audio/x-midi" hidden></label>
+        <label class="ctrl">起点格 <input type="number" id="midi-start" value="0" min="0" step="16"></label>
+        <label class="ctrl">导入长度
+          <select id="midi-len">
+            <option value="16">16 格（1 小节）</option>
+            <option value="32">32 格（2 小节）</option>
+            <option value="64" selected>64 格（4 小节）</option>
+            <option value="128">128 格（8 小节）</option>
+            <option value="256">256 格（16 小节）</option>
+          </select>
+        </label>
+        <button class="btn primary" id="btn-midi-import" disabled>导入这一段</button>
+        <button class="btn ghost" id="btn-midi-next" disabled>下一段 ▶</button>
+        <label class="inline-check"><input type="checkbox" id="chk-midi-mono" checked> 只要主旋律（每格只留最高的音）</label>
+      </div>
+      <p class="hint" id="midi-info">
+        整首歌的 MIDI 动辄几千格，网格装不下，所以要分段导入：选文件后会先分析，
+        自动跳到<b>第一个有音符的段落</b>并按八度自动移调，然后你可以用「下一段」一段段听。
+      </p>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <span>冰冰冰音乐工作室 · 本地运行，无需联网</span>
+</footer>
+
+<script src="sample-data.js"></script>
+<script src="audio-engine.js"></script>
+<script src="auto-arrange.js"></script>
+<script src="demo-song.js"></script>
+<script src="midi.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
